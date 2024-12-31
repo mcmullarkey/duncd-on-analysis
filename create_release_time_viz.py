@@ -114,7 +114,7 @@ def generate_html_visualization(csv_file: str, output_file: str = "podcast_viz.h
 
 def main():
     # Use the correct path to the CSV file
-    csv_file = "output/podcast_episodes.csv"
+    csv_file = "data/podcast_episodes.csv"
     output_file = "docs/episode_release_times.html"
     
     # Generate visualization

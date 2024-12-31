@@ -5,6 +5,7 @@ from typing import List, Dict, Optional
 import csv
 import os
 from urllib.parse import urlparse
+from dotenv import load_dotenv
 
 class PodcastRSSParser:
     """Parser for extracting episode information from podcast RSS feeds."""
@@ -154,8 +155,9 @@ class PodcastRSSParser:
 
 def main():
     # Supporting Cast RSS feed URL
-    rss_url = "https://duncdon.supportingcast.fm/content/eyJ0IjoicCIsImMiOiI1MzUiLCJ1IjoiMTQyODU0IiwiZCI6IjE1OTcyNjE1ODYiLCJrIjoxNDJ9fGRjODdmZWEzMTA0MjcwYWJhZGQxZjQ0N2FlNzMyOWUyNDJhMTVhODYzNTBjZjY2Mzc4ZDlhZDg3YTBhZTU4NTY.rss"
-    output_file = "output/podcast_episodes.csv"
+    load_dotenv()
+    rss_url = os.environ["DUNCD_ON_URL"]
+    output_file = "data/podcast_episodes.csv"
     
     # Initialize parser with custom headers
     parser = PodcastRSSParser(rss_url)
