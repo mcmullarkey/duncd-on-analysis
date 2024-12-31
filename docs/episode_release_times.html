@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    #vis.vega-embed {
+      width: 100%;
+      display: flex;
+    }
+
+    #vis.vega-embed details,
+    #vis.vega-embed details summary {
+      position: relative;
+    }
+  </style>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vega-lite@5.20.1"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+</head>
+<body>
+  <div id="vis"></div>
+  <script>
+    (function(vegaEmbed) {
+      var spec = {"config": {"view": {"continuousWidth": 300, "continuousHeight": 300, "stroke": null}, "axis": {"grid": true}}, "data": {"name": "data-46eb861c4bdbe5f49f70ac7005380cb4"}, "mark": {"type": "bar"}, "encoding": {"tooltip": [{"field": "time_label", "title": "Time", "type": "nominal"}, {"field": "count", "title": "Episodes", "type": "quantitative"}], "x": {"axis": {"format": "d", "labelExpr": "datum.value + ':00'", "title": "Hour of Day"}, "field": "hour", "scale": {"domain": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]}, "type": "ordinal"}, "y": {"axis": {"title": "Number of Episodes"}, "field": "count", "type": "quantitative"}}, "height": 400, "params": [{"name": "param_1", "select": {"type": "interval", "encodings": ["x", "y"]}, "bind": "scales"}], "title": "Dunc'd On Episode Release Times by Hour of the Day", "width": 800, "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json", "datasets": {"data-46eb861c4bdbe5f49f70ac7005380cb4": [{"hour": 0, "count": 131, "time_label": "12:00 am"}, {"hour": 1, "count": 116, "time_label": "1:00 am"}, {"hour": 2, "count": 66, "time_label": "2:00 am"}, {"hour": 3, "count": 67, "time_label": "3:00 am"}, {"hour": 4, "count": 73, "time_label": "4:00 am"}, {"hour": 5, "count": 116, "time_label": "5:00 am"}, {"hour": 6, "count": 174, "time_label": "6:00 am"}, {"hour": 7, "count": 123, "time_label": "7:00 am"}, {"hour": 8, "count": 36, "time_label": "8:00 am"}, {"hour": 9, "count": 12, "time_label": "9:00 am"}, {"hour": 10, "count": 1, "time_label": "10:00 am"}, {"hour": 11, "count": 3, "time_label": "11:00 am"}, {"hour": 12, "count": 6, "time_label": "12:00 pm"}, {"hour": 13, "count": 4, "time_label": "1:00 pm"}, {"hour": 14, "count": 11, "time_label": "2:00 pm"}, {"hour": 15, "count": 21, "time_label": "3:00 pm"}, {"hour": 16, "count": 24, "time_label": "4:00 pm"}, {"hour": 17, "count": 35, "time_label": "5:00 pm"}, {"hour": 18, "count": 60, "time_label": "6:00 pm"}, {"hour": 19, "count": 88, "time_label": "7:00 pm"}, {"hour": 20, "count": 117, "time_label": "8:00 pm"}, {"hour": 21, "count": 130, "time_label": "9:00 pm"}, {"hour": 22, "count": 131, "time_label": "10:00 pm"}, {"hour": 23, "count": 122, "time_label": "11:00 pm"}]}};
+      var embedOpt = {"mode": "vega-lite"};
+
+      function showError(el, error){
+          el.innerHTML = ('<div style="color:red;">'
+                          + '<p>JavaScript Error: ' + error.message + '</p>'
+                          + "<p>This usually means there's a typo in your chart specification. "
+                          + "See the javascript console for the full traceback.</p>"
+                          + '</div>');
+          throw error;
+      }
+      const el = document.getElementById('vis');
+      vegaEmbed("#vis", spec, embedOpt)
+        .catch(error => showError(el, error));
+    })(vegaEmbed);
+
+  </script>
+</body>
+</html>
