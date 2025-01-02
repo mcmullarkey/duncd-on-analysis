@@ -11,6 +11,7 @@ dependencies = [
     "pyarrow>=18.1.0",
     "python-dotenv>=1.0.1",
     "requests>=2.32.3",
+    "scikit-learn>=1.6.0",
     "torch<2.3.0",
     "transformers",
 ]

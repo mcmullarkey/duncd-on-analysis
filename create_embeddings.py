@@ -6,7 +6,7 @@ def main():
 
 def create_embeddings(csv_file):
     # Example DataFrame
-    df = pd.read_csv(csv_file, encoding='utf-8', encoding_errors='ignore').iloc[:9]
+    df = pd.read_csv(csv_file, encoding='utf-8', encoding_errors='ignore')
     print(df.size)
 
     # Load HuggingFace pipeline for embeddings (using BERT-based model)
@@ -14,9 +14,14 @@ def create_embeddings(csv_file):
 
     # Function to extract embeddings
     def get_embeddings(text):
-        # Generate embeddings and average over the token dimension to get a fixed-length vector
-        embeddings = embedding_pipeline(text)
-        return [sum(token_vector) / len(token_vector) for token_vector in zip(*embeddings[0])]
+        if isinstance(text, str):
+            print("Is a string")
+            # Generate embeddings and average over the token dimension to get a fixed-length vector
+            embeddings = embedding_pipeline(text)
+            return [sum(token_vector) / len(token_vector) for token_vector in zip(*embeddings[0])]
+        else:
+            print("Not a string")
+            return []
 
     # Apply to the DataFrame column
     df['embeddings'] = df['description'].apply(get_embeddings)
