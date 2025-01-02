@@ -3,10 +3,28 @@ name = "duncd-on-analysis"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 dependencies = [
     "altair>=5.5.0",
+    "numpy<2",
     "pandas>=2.2.3",
+    "pyarrow>=18.1.0",
     "python-dotenv>=1.0.1",
     "requests>=2.32.3",
+    "torch<2.3.0",
+    "transformers",
 ]
+
+[tool.uv.sources]
+transformers = { git = "https://github.com/huggingface/transformers.git" }
+torch = [
+  { index = "pytorch-cpu" },
+]
+torchvision = [
+  { index = "pytorch-cpu" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true

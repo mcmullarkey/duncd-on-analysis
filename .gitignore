@@ -12,3 +12,4 @@ wheels/
 # Project-specific
 *.csv
 .env
+*.parquet
