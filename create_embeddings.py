@@ -33,7 +33,7 @@ def create_embeddings(csv_file):
     print(df)
     
     # Write embeddings
-    df.to_parquet("output/description_embeddings.parquet", index=False)
+    df.to_parquet("data/labeling-app/description_embeddings.parquet", index=False)
 
 if __name__ == '__main__':
     main()
