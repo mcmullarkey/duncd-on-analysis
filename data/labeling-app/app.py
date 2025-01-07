@@ -33,7 +33,14 @@ with ui.card():
         "episode_type",
         "What episode type is this episode?",
         choices=["daily_duncs", "hollinger_duncan", "gamer", "big_picture"],
-        selected=[],
+        selected=["big_picture"],
+        inline=True,
+    )
+    ui.input_radio_buttons(
+        "banger",
+        "Was this episode type a banger?",
+        choices=["no", "yes", None],
+        selected=["no"],
         inline=True,
     )
     
@@ -47,7 +54,8 @@ with ui.card():
 @reactive.event(input.submit)
 def save_to_csv():
     fields = {"episode": input.episode(),
-            "episode_type": input.episode_type()
+            "episode_type": input.episode_type(),
+            "banger": input.banger()
             }
     df = pd.DataFrame([fields])
     responses = app_dir / "episode_types.csv"
