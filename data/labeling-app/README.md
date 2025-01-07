@@ -1,3 +1,5 @@
-## Survey app
+# Podcast Data Labeling App
 
-<a href='https://connect.posit.cloud/publish?framework=shiny&sourceRepositoryURL=https%3A%2F%2Fgithub.com%2Fposit-dev%2Fpy-shiny-templates&sourceRef=main&sourceRefType=branch&primaryFile=survey%2Fapp-express.py&pythonVersion=3.11'><img src='https://cdn.connect.posit.cloud/assets/deploy-to-connect-blue.svg' align="right" /></a>
+This is a Shiny for Python data labeling app based on the [suvery form](https://shiny.posit.co/py/templates/survey/) from the Shiny for Python [templates.](https://shiny.posit.co/py/templates/)
+
+You can use this in conjunction with a csv (the one I'm using is gitignored and not part of the repo) to create labeled versions of your data.
