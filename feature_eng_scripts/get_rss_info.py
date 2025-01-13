@@ -157,7 +157,7 @@ def main():
     # Supporting Cast RSS feed URL
     load_dotenv()
     rss_url = os.environ["DUNCD_ON_URL"]
-    output_file = "data/labeling-app/podcast_episodes.csv"
+    output_file = "../data/labeling-app/podcast_episodes.csv"
     
     # Initialize parser with custom headers
     parser = PodcastRSSParser(rss_url)

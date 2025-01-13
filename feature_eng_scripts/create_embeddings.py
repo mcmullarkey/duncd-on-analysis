@@ -2,7 +2,7 @@ import pandas as pd
 from transformers import pipeline
 
 def main():
-    create_embeddings("data/podcast_episodes.csv")
+    create_embeddings("../data/labeling-app/podcast_episodes.csv")
 
 def create_embeddings(csv_file):
     # Example DataFrame
@@ -33,7 +33,7 @@ def create_embeddings(csv_file):
     print(df)
     
     # Write embeddings
-    df.to_parquet("data/labeling-app/description_embeddings.parquet", index=False)
+    df.to_parquet("../data/labeling-app/description_embeddings.parquet", index=False)
 
 if __name__ == '__main__':
     main()
