@@ -5,7 +5,7 @@ import altair as alt
 from scipy.spatial.distance import pdist, squareform
 
 # Read the parquet file
-df = pd.read_parquet('output/description_embeddings.parquet')
+df = pd.read_parquet('../output/description_embeddings.parquet')
 
 # Filter to embeddings with more than 0 dimensions
 df = df[df['embeddings'].apply(lambda x: len(x) > 0)].reset_index(drop=True)
@@ -67,4 +67,4 @@ chart = alt.Chart(pca_df).mark_circle().encode(
 ).interactive()
 
 # Save the chart
-chart.save('docs/description_embeddings_viz.html')
+chart.save('../docs/description_embeddings_viz.html')
