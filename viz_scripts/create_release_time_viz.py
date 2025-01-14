@@ -63,16 +63,9 @@ def create_release_time_viz(df: pl.DataFrame, podcast_name: str = "Dunc'd On") -
         18: "6:00 pm", 19: "7:00 pm", 20: "8:00 pm", 21: "9:00 pm", 22: "10:00 pm", 23: "11:00 pm"
     }
     
-    # Convert the dictionary to a Polars Series for mapping
-    mapping_series = pl.DataFrame(
-        {"hour": list(time_labels.keys()), "time_label": list(time_labels.values())}
+    df = df.with_columns(
+        pl.col("hour").replace_strict(time_labels).alias("time_label")
     )
-
-    # Join the mapping DataFrame with the original DataFrame
-    df = df.join(mapping_series, on="hour", how="left")
-
-    
-    # df['time_label'] = df['hour'].map(time_labels)
     
     # Create bar chart of release times by hour
     chart = alt.Chart(df).mark_bar().encode(
