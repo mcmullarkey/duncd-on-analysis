@@ -1,36 +1,51 @@
-import pandas as pd
+import polars as pl
 import altair as alt
 from datetime import datetime
 import os
 
-def prepare_time_data(df: pd.DataFrame) -> pd.DataFrame:
+def prepare_time_data(df: pl.DataFrame) -> pl.DataFrame:
     """
     Prepare episode data for time-based visualization.
     
     Args:
         df: DataFrame with episode data including 'date' column
+    
     Returns:
-        pd.DataFrame: Processed data frame with time information
+        pl.DataFrame: Processed data frame with time information
     """
-    # Convert date string to datetime if it's not already
-    if df['date'].dtype == 'object':
-        df['date'] = pd.to_datetime(df['date'])
-    
-    # Extract hour
-    df['hour'] = df['date'].dt.hour
-    
-    # Create time string for display
-    df['release_time'] = df['date'].dt.strftime('%I:%M %p')
-    
-    # Clean any problematic Unicode in title
-    df['title'] = df['title'].str.encode('ascii', 'ignore').str.decode('ascii')
-    
-    # Count episodes per hour
-    hour_counts = df.groupby('hour').size().reset_index(name='count')
-    
+    # Check if 'date' column exists and is a string
+    if 'date' in df.schema and df.schema['date'] == pl.Utf8:
+        try:
+            # Adjusted to use `pl.Datetime` and corrected format for datetime
+            df = df.with_columns(
+                pl.col('date').str.strptime(pl.Datetime, format='%Y-%m-%d %H:%M:%S', strict=False)
+            )
+        except Exception as e:
+            raise ValueError(f"Error converting 'date' column: {e}")
+
+    # Check for successful conversion
+    if df.schema.get('date') != pl.Datetime:
+        raise ValueError("'date' column is not in a valid datetime format.")
+
+    # Add and group by hour column
+    try:
+        hour_counts = df.with_columns(
+            hour = pl.col("date").dt.hour(),
+            release_time = pl.col("date").dt.strftime('%I:%M %p'),
+            title = pl.col("title").str.replace_all(r'[^\x00-\x7F]+', '')  # Remove non-ASCII characters
+        ).group_by(
+            "hour",
+            maintain_order=True
+        ).agg(
+            count = pl.len()
+        )
+    except Exception as e:
+        raise RuntimeError(f"Error processing the DataFrame: {e}")
+
     return hour_counts
 
-def create_release_time_viz(df: pd.DataFrame, podcast_name: str = "Dunc'd On") -> alt.Chart:
+
+def create_release_time_viz(df: pl.DataFrame, podcast_name: str = "Dunc'd On") -> alt.Chart:
     """
     Create an interactive visualization of episode release times by hour with human-readable time labels.
     
@@ -48,7 +63,16 @@ def create_release_time_viz(df: pd.DataFrame, podcast_name: str = "Dunc'd On") -
         18: "6:00 pm", 19: "7:00 pm", 20: "8:00 pm", 21: "9:00 pm", 22: "10:00 pm", 23: "11:00 pm"
     }
     
-    df['time_label'] = df['hour'].map(time_labels)
+    # Convert the dictionary to a Polars Series for mapping
+    mapping_series = pl.DataFrame(
+        {"hour": list(time_labels.keys()), "time_label": list(time_labels.values())}
+    )
+
+    # Join the mapping DataFrame with the original DataFrame
+    df = df.join(mapping_series, on="hour", how="left")
+
+    
+    # df['time_label'] = df['hour'].map(time_labels)
     
     # Create bar chart of release times by hour
     chart = alt.Chart(df).mark_bar().encode(
@@ -86,14 +110,18 @@ def generate_html_visualization(csv_file: str, output_file: str = "podcast_viz.h
     """
     try:
         # Read CSV file with explicit UTF-8 encoding and error handling
-        df = pd.read_csv(csv_file, encoding='utf-8', encoding_errors='ignore')
+        df = pl.read_csv(csv_file, encoding='utf8', ignore_errors=True)
+        print("Reading df succeeded!")
         
         if 'date' not in df.columns:
             print("Error: CSV file must contain a 'date' column")
             return
             
         # Prepare data
+        print("Preparing time data")
         hour_counts = prepare_time_data(df)
+        print("Time data prepared")
+        print(hour_counts)
         
         # Create visualization
         chart = create_release_time_viz(hour_counts)
@@ -114,8 +142,8 @@ def generate_html_visualization(csv_file: str, output_file: str = "podcast_viz.h
 
 def main():
     # Use the correct path to the CSV file
-    csv_file = "../data/labeling-app/podcast_episodes.csv"
-    output_file = "../docs/episode_release_times.html"
+    csv_file = "data/labeling-app/podcast_episodes.csv"
+    output_file = "docs/episode_release_times.html"
     
     # Generate visualization
     generate_html_visualization(csv_file, output_file)
