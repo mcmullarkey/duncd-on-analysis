@@ -3,6 +3,14 @@ import altair as alt
 from datetime import datetime
 import os
 
+def main():
+    # Use the correct path to the CSV file from the project root
+    csv_file = "data/labeling-app/podcast_episodes.csv"
+    output_file = "docs/episode_release_times.html"
+    
+    # Generate visualization
+    generate_html_visualization(csv_file, output_file)
+
 def prepare_time_data(df: pl.DataFrame) -> pl.DataFrame:
     """
     Prepare episode data for time-based visualization.
@@ -132,14 +140,6 @@ def generate_html_visualization(csv_file: str, output_file: str = "podcast_viz.h
         print(f"Does file exist? {os.path.exists(csv_file)}")
     except Exception as e:
         print(f"Error generating visualization: {e}")
-
-def main():
-    # Use the correct path to the CSV file
-    csv_file = "data/labeling-app/podcast_episodes.csv"
-    output_file = "docs/episode_release_times.html"
-    
-    # Generate visualization
-    generate_html_visualization(csv_file, output_file)
 
 if __name__ == "__main__":
     main()
