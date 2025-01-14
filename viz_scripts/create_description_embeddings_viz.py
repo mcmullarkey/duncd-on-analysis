@@ -13,11 +13,17 @@ def main():
 def read_filter_embeddings():
 
     # Read the parquet file
-    df = pl.read_parquet('data/labeling-app/description_embeddings.parquet')
+    df_embedding = pl.read_parquet('data/labeling-app/description_embeddings.parquet')
+    print(df_embedding)
     
-    print(df.glimpse())
+    df_episode_types = pl.read_csv("data/labeling-app/episode_types.csv")
+    print(df_episode_types)
     
-    df_filtered = df.filter(pl.col("embedding_dimensions") > 0)
+    df_full = df_episode_types.join(df_embedding, left_on = "episode", right_on = "title", how = "left")
+    print("Join succeeds!")
+    print(df_full)
+    
+    df_filtered = df_full.filter(pl.col("embedding_dimensions") > 0)
     
     return df_filtered
 
@@ -35,9 +41,10 @@ def create_pca_df_results(df):
 
     # Create a new Polars DataFrame with PCA results
     pca_df = pl.DataFrame({
-        'title': df['title'],
+        'title': df['episode'],
         'PC1': pca_result[:, 0],
-        'PC2': pca_result[:, 1]
+        'PC2': pca_result[:, 1],
+        'episode_type': df['episode_type'].str.replace("_"," ").str.to_titlecase()
     })
 
     # Calculate pairwise distances
@@ -51,14 +58,14 @@ def create_pca_df_results(df):
     # Get episode pairs
     min_dist_pair = {
         'distance': distance_matrix[min_dist_idx],
-        'episode1': df['title'].to_list()[min_dist_idx[0]],  # Using .to_list() for access
-        'episode2': df['title'].to_list()[min_dist_idx[1]]   # Using .to_list() for access
+        'episode1': df['episode'].to_list()[min_dist_idx[0]],  # Using .to_list() for access
+        'episode2': df['episode'].to_list()[min_dist_idx[1]]   # Using .to_list() for access
     }
 
     max_dist_pair = {
         'distance': distance_matrix[max_dist_idx],
-        'episode1': df['title'].to_list()[max_dist_idx[0]],  # Using .to_list() for access
-        'episode2': df['title'].to_list()[max_dist_idx[1]]   # Using .to_list() for access
+        'episode1': df['episode'].to_list()[max_dist_idx[0]],  # Using .to_list() for access
+        'episode2': df['episode'].to_list()[max_dist_idx[1]]   # Using .to_list() for access
     }
     
     return pca_df, min_dist_pair, max_dist_pair
@@ -77,17 +84,38 @@ def print_results(min_dist_pair, max_dist_pair):
     print(f"Episode 2: {max_dist_pair['episode2']}")
 
 def create_interactive_chart(pca_df):
+    
+    interval = alt.selection_interval()
 
     # Create interactive scatter plot
-    chart = alt.Chart(pca_df).mark_circle().encode(
-        x='PC1:Q',
-        y='PC2:Q',
-        tooltip=['title:N']
+    scatter = alt.Chart(pca_df).mark_circle().encode(
+        x= alt.X('PC1:Q', axis = alt.Axis(title = "Approximated Daily Duncs -> Main Episodes Embedding")),
+        y= alt.Y('PC2:Q', axis = alt.Axis(title = "Approximated Big Picture -> Gamer Embedding")),
+        color = alt.Color("episode_type:N", legend = None),
+        tooltip=[alt.Tooltip('title:N', title = "Title"),
+                 alt.Tooltip('episode_type:N', title = "Episode Type")]
     ).properties(
-        width=600,
-        height=400,
-        title='PCA Visualization of Embeddings'
-    ).interactive()
+        width=800,
+        height=600,
+        title= alt.TitleParams("Principal Components of Dunc'd On Episode Description Embeddings",
+        subtitle= ["The first two PCA components appear to differentiate between episode types",
+                   "Drap and drop any section of the chart to see how many of each episode type are in the area"])
+    ).add_params(
+        interval
+    )
+    
+    hist = alt.Chart(pca_df).mark_bar().encode(
+        x= alt.X("count()", axis = alt.Axis(title = "Count of Episode Types in Selected Area")),
+        y = alt.Y("episode_type:N", axis = alt.Axis(title = "")),
+        color = "episode_type:N"
+    ).properties(
+        width=800,
+        height=80
+    ).transform_filter(
+        interval
+    )
+    
+    chart = scatter & hist
 
     # Save the chart
     chart.save('docs/description_embeddings_viz.html')
