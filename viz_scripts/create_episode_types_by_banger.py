@@ -1,9 +1,9 @@
-import pandas as pd
+import polars as pl
 import altair as alt
 from datetime import datetime
 import os
 
-def create_type_banger_viz(df: pd.DataFrame, podcast_name: str = "Dunc'd On") -> alt.Chart:
+def create_type_banger_viz(df: pl.DataFrame, podcast_name: str = "Dunc'd On") -> alt.Chart:
     """
     Create an interactive visualization of whether the episode is a banger or not 
     by episode type with human-readable time labels, with flipped axes.
@@ -58,14 +58,13 @@ def generate_html_visualization(csv_file: str, output_file: str = "podcast_viz.h
     """
     try:
         # Read CSV file with explicit UTF-8 encoding and error handling
-        df_init = pd.read_csv(csv_file, encoding='utf-8', encoding_errors='ignore')
+        df_init = pl.read_csv(csv_file, encoding="utf8", ignore_errors=True)
         
-        df = (
-            df_init
-            .loc[~(df_init["episode_type"] == "daily_duncs")]
-            .assign(episode_type = lambda x: x['episode_type'].str.replace('_', ' ').str.title(),
-                    banger = lambda x: x['banger'].str.replace('_', ' ').str.title())
-            )
+        df = df_init.with_columns(
+            pl.col("episode_type", "banger").str.replace("_", " ").str.to_titlecase()
+        )
+        
+        print(df)
         
         if 'episode_type' not in df.columns:
             print("Error: CSV file must contain a 'episode_type' column")
