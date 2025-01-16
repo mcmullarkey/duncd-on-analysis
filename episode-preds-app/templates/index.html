@@ -1,42 +1,100 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Podcast Banger Predictor</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dunc'd On Episode Prediction</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
     <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', Arial, sans-serif;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        button {
-            background-color: #4CAF50;
-            border: none;
-            color: white;
-            padding: 15px 32px;
+            background-color: #121212;
+            color: #fff;
             text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
+            padding: 40px;
+            font-size: 1rem;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: #fff;
+            margin-bottom: 30px;
+            letter-spacing: 1.5px;
+            font-weight: 500;
+        }
+
+        button {
+            background-color: #6200ea;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 1.2rem;
             cursor: pointer;
-            border-radius: 4px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(98, 0, 234, 0.3);
         }
+
+        button:hover {
+            background-color: #3700b3;
+            box-shadow: 0 6px 18px rgba(98, 0, 234, 0.4);
+            transform: translateY(-2px);
+        }
+
+        button:focus {
+            outline: none;
+        }
+
+        /* Loading Spinner */
+
+        /* Chart Container */
         #chart-container {
-            margin-top: 20px;
+            width: 80%;
+            margin: 40px auto;
+            position: relative;
             height: 400px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: linear-gradient(45deg, #7b1fa2, #f50057);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
         }
-        .loading {
-            display: none;
-            margin-top: 20px;
+
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+            display: block;
+            border-radius: 12px;
+        }
+
+        /* Mobile Responsiveness */
+        @media screen and (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            button {
+                font-size: 1rem;
+                padding: 12px 24px;
+            }
+
+            #chart-container {
+                width: 90%;
+                height: 300px;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Podcast Banger Predictor</h1>
-    <button onclick="findGoodEpisodes()">Find Good Episodes</button>
-    <div id="loading" class="loading">Loading...</div>
+    <h1>Which recent Dunc'd On episodes should I listen to first?</h1>
+    <button onclick="findGoodEpisodes()">Predict</button>
     <div id="chart-container">
         <canvas id="episodeChart"></canvas>
     </div>
@@ -45,8 +103,6 @@
         let chart = null;
 
         async function findGoodEpisodes() {
-            const loading = document.getElementById('loading');
-            loading.style.display = 'block';
             
             try {
                 const response = await fetch('/predict');
@@ -61,8 +117,6 @@
             } catch (error) {
                 alert('Error fetching predictions');
                 console.error(error);
-            } finally {
-                loading.style.display = 'none';
             }
         }
 
@@ -79,7 +133,8 @@
                     datasets: [{
                         label: 'Banger Probability',
                         data: data.map(item => item.probability),
-                        backgroundColor: 'rgba(54, 162, 235, 0.8)'
+                        backgroundColor: 'rgba(98, 0, 234, 0.8)',
+                        borderRadius: 8
                     }]
                 },
                 options: {
@@ -104,7 +159,16 @@
                             max: 1,
                             title: {
                                 display: true,
-                                text: 'Probability of being a banger'
+                                text: 'Probability of being a banger',
+                                color: '#fff'
+                            },
+                            ticks: {
+                                color: '#fff'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: '#fff'
                             }
                         }
                     }
