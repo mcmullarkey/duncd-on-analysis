@@ -18,9 +18,19 @@
         body {
             background-color: #121212;
             color: #fff;
-            text-align: center;
-            padding: 40px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
             font-size: 1rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            text-align: center;
         }
 
         h1 {
@@ -29,6 +39,39 @@
             margin-bottom: 30px;
             letter-spacing: 1.5px;
             font-weight: 500;
+            line-height: 1.2;
+        }
+
+        .text-container {
+            position: relative;
+            height: 100px; /* Adjust based on your content */
+            margin: 30px auto;
+            max-width: 800px;
+        }
+
+        .about-text, .contact-text {
+            position: absolute;
+            width: 100%;
+            left: 0;
+            top: 0;
+            line-height: 1.6;
+            font-size: 1.1rem;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        .contact-text {
+            opacity: 0;
+        }
+
+        .contact-text a {
+            color: #bb86fc;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .contact-text a:hover {
+            color: #3700b3;
         }
 
         button {
@@ -41,6 +84,7 @@
             border-radius: 8px;
             transition: all 0.3s ease;
             box-shadow: 0 4px 12px rgba(98, 0, 234, 0.3);
+            margin: 20px 0;
         }
 
         button:hover {
@@ -53,9 +97,6 @@
             outline: none;
         }
 
-        /* Loading Spinner */
-
-        /* Chart Container */
         #chart-container {
             width: 80%;
             margin: 40px auto;
@@ -65,6 +106,14 @@
             overflow: hidden;
             background: linear-gradient(45deg, #7b1fa2, #f50057);
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        #chart-container.visible {
+            opacity: 1;
+            visibility: visible;
         }
 
         canvas {
@@ -80,29 +129,60 @@
                 font-size: 2rem;
             }
 
+            .text-container {
+                height: 150px; /* Increased for mobile */
+                padding: 0 20px;
+            }
+
+            .about-text, .contact-text {
+                font-size: 1rem;
+            }
+
             button {
                 font-size: 1rem;
                 padding: 12px 24px;
             }
 
             #chart-container {
-                width: 90%;
+                width: 95%;
                 height: 300px;
             }
         }
     </style>
 </head>
 <body>
-    <h1>Which recent Dunc'd On episodes should I listen to first?</h1>
-    <button onclick="findGoodEpisodes()">Predict</button>
-    <div id="chart-container">
-        <canvas id="episodeChart"></canvas>
+    <div class="container">
+        <h1>Which recent Dunc'd On episodes are best?</h1>
+        
+        <div class="text-container">
+            <div class="about-text">
+                This tool fetches the past week of episodes from an RSS feed, transforms the data for feature engineering, and runs an onnx model that achieved 80% accuracy in predicting which episodes are best. Click "Predict" to see our recommendations.
+            </div>
+            <div class="contact-text">
+                This tool was built by Michael Mullarkey, who's looking for jobs right now! His resume is <a href="https://docs.google.com/document/d/13eiP7DP97qG8SXcpLAXrdHC5PrjX_l9RGu5rb9g339M/" target="_blank">here</a> and his LinkedIn is <a href="https://www.linkedin.com/in/mcmullarkey/" target="_blank">here</a>
+            </div>
+        </div>
+
+        <button onclick="findGoodEpisodes()">Predict</button>
+        
+        <div id="chart-container">
+            <canvas id="episodeChart"></canvas>
+        </div>
     </div>
 
     <script>
         let chart = null;
 
         async function findGoodEpisodes() {
+            const aboutText = document.querySelector('.about-text');
+            const contactText = document.querySelector('.contact-text');
+            const chartContainer = document.getElementById('chart-container');
+            
+            // Fade out about text and fade in contact text
+            aboutText.style.opacity = '0';
+            setTimeout(() => {
+                contactText.style.opacity = '1';
+            }, 500);
             
             try {
                 const response = await fetch('/predict');
@@ -113,7 +193,14 @@
                     return;
                 }
                 
-                updateChart(data);
+                // Show and fade in the chart container
+                chartContainer.classList.add('visible');
+                
+                // Slight delay before updating chart for smooth transition
+                setTimeout(() => {
+                    updateChart(data);
+                }, 100);
+                
             } catch (error) {
                 alert('Error fetching predictions');
                 console.error(error);
@@ -141,6 +228,10 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     indexAxis: 'y',
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeInOutQuart'
+                    },
                     plugins: {
                         legend: {
                             display: false
