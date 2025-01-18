@@ -1,0 +1,141 @@
+/* Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto', Arial, sans-serif;
+}
+
+body {
+    background-color: #121212;
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    font-size: 1rem;
+}
+
+.container {
+    max-width: 1200px;
+    width: 100%;
+    text-align: center;
+}
+
+h1 {
+    font-size: 3rem;
+    color: #fff;
+    margin-bottom: 30px;
+    letter-spacing: 1.5px;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+.text-container {
+    position: relative;
+    height: 100px; /* Adjust based on your content */
+    margin: 30px auto;
+    max-width: 800px;
+}
+
+.about-text, .contact-text {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    top: 0;
+    line-height: 1.6;
+    font-size: 1.1rem;
+    opacity: 1;
+    transition: opacity 0.5s ease;
+}
+
+.contact-text {
+    opacity: 0;
+}
+
+.contact-text a {
+    color: #bb86fc;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.contact-text a:hover {
+    color: #3700b3;
+}
+
+button {
+    background-color: #6200ea;
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(98, 0, 234, 0.3);
+    margin: 20px 0;
+}
+
+button:hover {
+    background-color: #3700b3;
+    box-shadow: 0 6px 18px rgba(98, 0, 234, 0.4);
+    transform: translateY(-2px);
+}
+
+button:focus {
+    outline: none;
+}
+
+#chart-container {
+    width: 80%;
+    margin: 40px auto;
+    position: relative;
+    height: 400px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: linear-gradient(45deg, #7b1fa2, #f50057);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+#chart-container.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+    border-radius: 12px;
+}
+
+/* Mobile Responsiveness */
+@media screen and (max-width: 768px) {
+    h1 {
+        font-size: 2rem;
+    }
+
+    .text-container {
+        height: 150px; /* Increased for mobile */
+        padding: 0 20px;
+    }
+
+    .about-text, .contact-text {
+        font-size: 1rem;
+    }
+
+    button {
+        font-size: 1rem;
+        padding: 12px 24px;
+    }
+
+    #chart-container {
+        width: 95%;
+        height: 300px;
+    }
+}

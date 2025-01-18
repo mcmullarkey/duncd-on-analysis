@@ -5,19 +5,81 @@ import os
 from datetime import datetime, timedelta, timezone
 import json
 import logging
+from logging.handlers import RotatingFileHandler
 import requests
 import xml.etree.ElementTree as ET
+from waitress import serve
+import secrets
 
-# Configure logging
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+# Enhanced logging configuration
+def setup_logging():
+    # Create logs directory if it doesn't exist
+    os.makedirs('logs', exist_ok=True)
+    
+    # Configure file handler with rotation
+    file_handler = RotatingFileHandler(
+        'logs/app.log',
+        maxBytes=1024 * 1024,  # 1MB
+        backupCount=10
+    )
+    file_handler.setFormatter(logging.Formatter(
+        '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+    ))
+    file_handler.setLevel(logging.INFO)
+    
+    # Configure console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(logging.Formatter(
+        '%(asctime)s %(levelname)s: %(message)s'
+    ))
+    
+    # Setup root logger
+    logging.basicConfig(
+        level=logging.INFO,
+        handlers=[file_handler, console_handler]
+    )
+    
+    return logging.getLogger('duncd_on_app')
 
+logger = setup_logging()
+
+# Initialize Flask with production configurations
 app = Flask(__name__)
+app.config.update(
+    SECRET_KEY=os.environ.get('SECRET_KEY', secrets.token_hex(32)),
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
+    PERMANENT_SESSION_LIFETIME=timedelta(days=1)
+)
 
-# Load the ONNX model
-logger.info("Loading ONNX model...")
-session = onnxruntime.InferenceSession("episode_banger_model.onnx")
-logger.info("ONNX model loaded successfully")
+# Add security headers middleware
+@app.after_request
+def add_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    return response
+
+# Error handlers
+@app.errorhandler(404)
+def not_found_error(error):
+    return jsonify({'error': 'Not found'}), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    logger.error(f'Server Error: {error}')
+    return jsonify({'error': 'Internal server error'}), 500
+
+# Load the ONNX model with error handling
+try:
+    logger.info("Loading ONNX model...")
+    session = onnxruntime.InferenceSession("episode_banger_model.onnx")
+    logger.info("ONNX model loaded successfully")
+except Exception as e:
+    logger.error(f"Failed to load ONNX model: {e}")
+    raise SystemExit("Could not load ONNX model. Exiting...")
 
 @app.route('/health')
 def health():
@@ -151,10 +213,26 @@ def predict():
         logger.error(f"Error in predict route: {str(e)}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
+def main():
+    # Environment setup
+    env = os.environ.get('FLASK_ENV', 'production')
+    host = os.environ.get('HOST', '0.0.0.0')
+    port = int(os.environ.get('PORT', 8080))
+    
+    # Verify critical environment variables
+    required_vars = ['RSS_FEED_URL']
+    missing_vars = [var for var in required_vars if not os.environ.get(var)]
+    if missing_vars:
+        logger.error(f"Missing required environment variables: {', '.join(missing_vars)}")
+        raise SystemExit("Missing required environment variables")
+    
+    logger.info(f"Starting server in {env} mode on port {port}")
+    
+    if env == 'development':
+        app.run(debug=True, host=host, port=port)
+    else:
+        # Production server (Waitress)
+        serve(app, host=host, port=port, threads=4)
+
 if __name__ == '__main__':
-    logger.info("Starting Flask app...")
-    # Add more explicit startup logging
-    print(f"Starting server on port 8080...")
-    print(f"Debug mode: {app.debug}")
-    print(f"Environment: {os.environ.get('FLASK_ENV')}")
-    app.run(debug=True, host='0.0.0.0', port=8080, threaded=True)
+    main()

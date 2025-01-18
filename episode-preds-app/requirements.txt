@@ -6,3 +6,4 @@ feedparser==6.0.10
 onnxruntime==1.15.1
 python-dateutil==2.8.2
 requests
+waitress>=2.1.2
