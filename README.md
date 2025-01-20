@@ -1,4 +1,4 @@
-# My Analysis of the Dunc'd On Basketball Podcast
+# Analyses of the Dunc'd On Basketball Podcast
 
 ## A demo of the production app predicting the best episodes
 
