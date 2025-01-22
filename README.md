@@ -4,6 +4,10 @@
 
 https://github.com/user-attachments/assets/fe6e4955-83fd-4d00-8aac-c81388fe9290
 
+The Dunc'd On Podcast only has one problem: they put out too much good content.
+
+So, I build an app that would predict which recent episodes I'm most likely to enjoy.
+
 This [production app](https://duncd-on-predictor-44887993798.us-central1.run.app/) hits the Dunc'd On RSS feed for episodes over the past week, performs feature engineering, and runs a model that achieved an F1 score of 0.80 for predicting the best episodes (as labeled by me). You can try the app yourself [here](https://duncd-on-predictor-44887993798.us-central1.run.app/).
 
 ## A demo of exploring episode description embeddings
